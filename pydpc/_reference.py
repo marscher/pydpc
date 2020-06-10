@@ -94,7 +94,8 @@ class Cluster(object):
             _np.where(self.delta > self.min_delta)[0], assume_unique=True)
         self.ncl = self.clusters.shape[0]
     def _get_membership(self):
-        self.membership = -1 * _np.ones(shape=self.order.shape, dtype=_np.intc)
+        self.membership = _np.empty_like(self.order, dtype=_np.int_)
+        self.membership[:] = -1
         for i in range(self.ncl):
             self.membership[self.clusters[i]] = i
         for i in range(self.npoints):
