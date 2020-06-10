@@ -53,9 +53,10 @@ class Density(Distances):
 class Graph(Density):
     def __init__(self, points, fraction, **kwargs):
         super(Graph, self).__init__(points, fraction, **kwargs)
-        self.order = _np.ascontiguousarray(_np.argsort(self.density).astype(_np.intc)[::-1])
+        self.order = _np.ascontiguousarray(_np.argsort(self.density).astype(_np.uint)[::-1])
         self.delta, self.neighbour = _core.get_delta_and_neighbour(
             self.order, self.distances, self.max_distance)
+
 
 class Cluster(Graph):
     def __init__(self, points, fraction=0.02, autoplot=True, **kwargs):
@@ -87,9 +88,9 @@ class Cluster(Graph):
             self.kernel_size, self.distances, self.density, self.membership, self.nclusters)
         self.halo_idx, self.core_idx = _core.get_halo(
             self.density, self.membership,
-            self.border_density, self.border_member.astype(_np.intc), border_only=border_only)
+            self.border_density, self.border_member, border_only=border_only)
     def _get_cluster_indices(self):
         self.clusters = _np.intersect1d(
             _np.where(self.density > self.min_density)[0],
-            _np.where(self.delta > self.min_delta)[0], assume_unique=True).astype(_np.intc)
+            _np.where(self.delta > self.min_delta)[0], assume_unique=True).astype(_np.uint)
         self.nclusters = self.clusters.shape[0]
