@@ -25,9 +25,9 @@ cdef extern from "_core.h":
     void _get_density(double kernel_size, double *distances, size_t npoints, double *density)
     void _get_delta_and_neighbour(
         double max_distance, double *distances, size_t *order,
-        size_t npoints, double *delta, size_t *neighbour)
+        size_t npoints, double *delta, long *neighbour)
     void _get_membership(
-        size_t *clusters, size_t nclusters, size_t *order, size_t *neighbour, size_t npoints, long *membership)
+        size_t *clusters, size_t nclusters, size_t *order, long *neighbour, size_t npoints, long *membership)
     void _get_border(
         double kernel_size, double *distances, double *density, long *membership, size_t npoints,
         bool *border_member, double *border_density)
@@ -49,8 +49,8 @@ def get_kernel_size(np.ndarray[double, ndim=2, mode="c"] distances not None, fra
     return _get_kernel_size(<double*> np.PyArray_DATA(distances), distances.shape[0], fraction)
 
 def get_density(np.ndarray[double, ndim=2, mode="c"] distances not None, kernel_size):
-    npoints = distances.shape[0]
-    density = np.zeros(shape=(npoints,), dtype=np.float64)
+    npoints = len(distances)
+    density = np.zeros(npoints, dtype=np.float64)
     _get_density(
         kernel_size,
         <double*> np.PyArray_DATA(distances),
@@ -62,29 +62,29 @@ def get_delta_and_neighbour(
     np.ndarray[size_t, ndim=1, mode="c"] order not None,
     np.ndarray[double, ndim=2, mode="c"] distances not None,
     max_distance):
-    npoints = distances.shape[0]
-    delta = np.zeros(shape=(npoints,), dtype=np.float64)
-    neighbour = np.zeros(shape=(npoints,), dtype=np.uint)
+    npoints = len(distances)
+    delta = np.zeros(npoints, dtype=np.float64)
+    neighbour = np.empty(npoints, dtype=np.int64)
     _get_delta_and_neighbour(
         max_distance,
         <double*> np.PyArray_DATA(distances),
         <size_t*> np.PyArray_DATA(order),
         npoints,
         <double*> np.PyArray_DATA(delta),
-        <size_t*> np.PyArray_DATA(neighbour))
+        <long*> np.PyArray_DATA(neighbour))
     return delta, neighbour
 
 def get_membership(
     np.ndarray[size_t, ndim=1, mode="c"] clusters not None,
     np.ndarray[size_t, ndim=1, mode="c"] order not None,
-    np.ndarray[size_t, ndim=1, mode="c"] neighbour not None):
+    np.ndarray[long, ndim=1, mode="c"] neighbour not None):
     npoints = order.shape[0]
-    membership = np.zeros(shape=(npoints,), dtype=np.int_)
+    membership = np.zeros(npoints, dtype=long)
     _get_membership(
         <size_t*> np.PyArray_DATA(clusters),
         clusters.shape[0],
         <size_t*> np.PyArray_DATA(order),
-        <size_t*> np.PyArray_DATA(neighbour),
+        <long*> np.PyArray_DATA(neighbour),
         npoints,
         <long*> np.PyArray_DATA(membership))
     return membership
