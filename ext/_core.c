@@ -22,29 +22,10 @@
 #include <math.h>
 
 /***************************************************************************************************
-*   C99 compatibility for macros INFINITY and NAN
-***************************************************************************************************/
-
-#ifdef _MSC_VER
-/* handle Microsofts C99 incompatibility */
-#include <float.h>
-#define INFINITY (DBL_MAX+DBL_MAX)
-#define NAN (INFINITY-INFINITY)
-#else
-/* if not available otherwise, define INFINITY/NAN in the GNU style */
-#ifndef INFINITY
-#define INFINITY (1.0/0.0)
-#endif
-#ifndef NAN
-#define NAN (INFINITY-INFINITY)
-#endif
-#endif
-
-/***************************************************************************************************
 *   static convenience functions (without cython wrappers)
 ***************************************************************************************************/
 
-static double sqr(double x) {
+static inline double sqr(double x) {
     return (x == 0.0) ? 0.0 : x * x;
 }
 
@@ -57,27 +38,9 @@ static double distance(double *points, size_t n, size_t m, size_t ndim) {
 }
 
 static int compare_double(const void * a, const void * b) {
-    return *(double*)a - *(double*)b;
-}
-
-static void mixed_sort(double *array, long L, long R)
-{
-    long l, r;
-    double swap;
-    size_t n = R - L;
-    if (n > 25) /* use quicksort */
-    {
-        /* TODO: replacing the old quicksort routine prior this commit breaks all the tests... */
-        qsort(array, n+1, sizeof(double), compare_double);
-    } else /* use insertion sort */
-    {
-        for (l = L + 1; l <= R; ++l) {
-            swap = array[l];
-            for (r = l - 1; (r >= L) && (swap < array[r]); --r)
-                array[r + 1] = array[r];
-            array[r + 1] = swap;
-        }
-    }
+    double da = *(const double*) a;
+    double db = *(const double*) b;
+    return (da > db) - (da < db);
 }
 
 /***************************************************************************************************
@@ -104,7 +67,7 @@ extern double _get_kernel_size(double *distances, size_t npoints, double fractio
         for (j = i + 1; j < npoints; ++j)
             scratch[m++] = distances[o + j];
     }
-    mixed_sort(scratch, 0, n - 1);
+    qsort(scratch, n, sizeof(double), compare_double);
     kernel_size = scratch[(size_t) floor(0.5 + fraction * n)];
 
     /* kernel_size is used as a divisor, it can't be zero. Fall back to the first
@@ -139,7 +102,7 @@ extern void _get_density(double kernel_size, double *distances, size_t npoints, 
 }
 
 extern void _get_delta_and_neighbour(
-        double max_distance, double *distances, size_t *order, size_t npoints, double *delta, size_t *neighbour) {
+        double max_distance, double *distances, size_t *order, size_t npoints, double *delta, long *neighbour) {
     size_t i, j, o;
     double max_delta = 0.0;
     for (i = 0; i < npoints; ++i) {
@@ -161,7 +124,7 @@ extern void _get_delta_and_neighbour(
 }
 
 extern void _get_membership(
-        size_t *clusters, size_t nclusters, size_t *order, size_t *neighbour, size_t npoints, long *membership) {
+        size_t *clusters, size_t nclusters, size_t *order, long *neighbour, size_t npoints, long *membership) {
     size_t i;
     for (i = 0; i < npoints; ++i)
         membership[i] = -1;
@@ -199,7 +162,7 @@ extern void _get_halo(
         double *density, long *membership, bool *border_member, size_t npoints, int *halo) {
     size_t i;
     for (i = 0; i < npoints; ++i) {
-        if (density[i] < border_density[membership[i]] && (border_only || !border_member[i])) {
+        if(density[i] < border_density[membership[i]] && (! border_only || border_member[i])) {
             halo[i] = -1;
         }
     }

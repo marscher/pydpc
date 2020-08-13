@@ -26,9 +26,9 @@ extern void _get_distances(double *points, size_t npoints, size_t ndim, double *
 extern double _get_kernel_size(double *distances, size_t npoints, double fraction);
 extern void _get_density(double kernel_size, double *distances, size_t npoints, double *density);
 extern void _get_delta_and_neighbour(
-    double max_distance, double *distances, size_t *order, size_t npoints, double *delta, size_t *neighbour);
+    double max_distance, double *distances, size_t *order, size_t npoints, double *delta, long *neighbour);
 extern void _get_membership(
-    size_t *clusters, size_t nclusters, size_t *order, size_t *neighbour, size_t npoints, long *membership);
+    size_t *clusters, size_t nclusters, size_t *order, long *neighbour, size_t npoints, long *membership);
 extern void _get_border(
     double kernel_size, double *distances, double *density, long *membership, size_t npoints,
     bool *border_member, double *border_density);
