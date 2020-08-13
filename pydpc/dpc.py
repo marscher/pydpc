@@ -25,7 +25,7 @@ __all__ = ['Cluster']
 class Distances(object):
     def __init__(self, points, distances=None):
         self.points = points
-        self.npoints = self.points.shape[0]
+        self.npoints = len(self.points)
 
         if distances is None:
             self.distances = _core.get_distances(self.points)
@@ -88,8 +88,6 @@ class Cluster(Graph):
         if self.autoplot:
             self.draw_decision_graph(self.min_density, self.min_delta)
         self._get_cluster_indices()
-        #if not self.nclusters:
-        #    raise RuntimeError('input parameters did not yield any cluster!? wtf')
         self.membership = _core.get_membership(self.clusters, self.order, self.neighbour)
         self.border_density, self.border_member = _core.get_border(
             self.kernel_size, self.distances, self.density, self.membership, self.nclusters)
