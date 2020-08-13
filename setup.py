@@ -20,6 +20,7 @@
 from setuptools import setup, Extension
 import versioneer
 
+
 def extensions():
     from numpy import get_include
     from Cython.Build import cythonize
@@ -44,11 +45,11 @@ class lazy_cythonize(list):
     def __getitem__(self, ii): return self.c_list()[ii]
     def __len__(self): return len(self.c_list())
 
-def long_description():
-    ld = "Clustering by fast search and find of density peaks, designed by Alex Rodriguez"
-    ld += " and Alessandro Laio, is a density-peak-based clustering algorithm. The pydpc package"
-    ld += " aims to make this algorithm available for Python users."
-    return ld
+
+long_description = """Clustering by fast search and find of density peaks, designed by Alex Rodriguez"
+    and Alessandro Laio, is a density-peak-based clustering algorithm. The pydpc package"
+    aims to make this algorithm available for Python users."
+    """
 
 setup(
     cmdclass=versioneer.get_cmdclass(),
@@ -56,9 +57,9 @@ setup(
     name='pydpc',
     version=versioneer.get_version(),
     description='Python package for Density Peak-based Clustering',
-    long_description=long_description(),
+    long_description=long_description,
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 3 - Beta',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
@@ -84,15 +85,10 @@ setup(
     setup_requires=[
         'numpy>=1.7',
         'cython>=0.20',
-        'setuptools>=0.6'],
-    tests_require=[
-        'numpy>=1.7',
-        'nose>=1.3'],
+    ],
     install_requires=[
         'numpy>=1.7',
         'matplotlib'],
     packages=['pydpc'],
-    test_suite='nose.collector',
-    scripts=[]
 )
 
