@@ -15,14 +15,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import numpy as _np
+import numpy as np
 import matplotlib.pyplot as _plt
 from . import core as _core
 
 __all__ = ['Cluster']
 
+
 class Distances(object):
-    def __init__(self, points, distances = None):
+    def __init__(self, points, distances=None):
         self.points = points
         self.npoints = self.points.shape[0]
 
@@ -35,8 +36,9 @@ class Distances(object):
 
         self.max_distance = self.distances.max()
 
+
 class Density(Distances):
-    def __init__(self, points, fraction, kernel_size = None, **kwargs):
+    def __init__(self, points, fraction, kernel_size=None, **kwargs):
         super(Density, self).__init__(points, **kwargs)
         self.fraction = fraction
         if kernel_size is None:
@@ -50,10 +52,11 @@ class Density(Distances):
             )
         self.density = _core.get_density(self.distances, self.kernel_size)
 
+
 class Graph(Density):
     def __init__(self, points, fraction, **kwargs):
         super(Graph, self).__init__(points, fraction, **kwargs)
-        self.order = _np.ascontiguousarray(_np.argsort(self.density).astype(_np.uint)[::-1])
+        self.order = np.ascontiguousarray(np.argsort(self.density).astype(np.uint)[::-1])
         self.delta, self.neighbour = _core.get_delta_and_neighbour(
             self.order, self.distances, self.max_distance)
 
@@ -64,6 +67,7 @@ class Cluster(Graph):
         self.autoplot = autoplot
         if self.autoplot:
             self.draw_decision_graph()
+
     def draw_decision_graph(self, min_density=None, min_delta=None):
         fig, ax = _plt.subplots(figsize=(5, 5))
         ax.scatter(self.density, self.delta, s=40)
@@ -76,6 +80,7 @@ class Cluster(Graph):
         ax.set_ylabel(r"delta / a.u.", fontsize=20)
         ax.tick_params(labelsize=15)
         return fig, ax
+
     def assign(self, min_density, min_delta, border_only=False):
         self.min_density = min_density
         self.min_delta = min_delta
@@ -83,14 +88,17 @@ class Cluster(Graph):
         if self.autoplot:
             self.draw_decision_graph(self.min_density, self.min_delta)
         self._get_cluster_indices()
+        #if not self.nclusters:
+        #    raise RuntimeError('input parameters did not yield any cluster!? wtf')
         self.membership = _core.get_membership(self.clusters, self.order, self.neighbour)
         self.border_density, self.border_member = _core.get_border(
             self.kernel_size, self.distances, self.density, self.membership, self.nclusters)
         self.halo_idx, self.core_idx = _core.get_halo(
             self.density, self.membership,
             self.border_density, self.border_member, border_only=border_only)
+
     def _get_cluster_indices(self):
-        self.clusters = _np.intersect1d(
-            _np.where(self.density > self.min_density)[0],
-            _np.where(self.delta > self.min_delta)[0], assume_unique=True).astype(_np.uint)
-        self.nclusters = self.clusters.shape[0]
+        self.clusters = np.intersect1d(
+            np.where(self.density > self.min_density)[0],
+            np.where(self.delta > self.min_delta)[0], assume_unique=True).astype(np.uint)
+        self.nclusters = len(self.clusters)
