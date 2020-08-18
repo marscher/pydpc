@@ -28,7 +28,7 @@ class TestFourGaussians2D(unittest.TestCase):
     def setUpClass(cls):
         # data generation
         #state = np.random.RandomState(23215)
-        state = np.random.RandomState(23215)
+        state = np.random.RandomState()
         cls.npoints = 1000
         cls.mux = 1.8
         cls.muy = 1.8
@@ -82,5 +82,4 @@ class TestFourGaussians2D(unittest.TestCase):
         assert_array_equal(self.dpc.core_idx, self.ref.core_idx)
 
 if __name__ == '__main__':
-    import unittest
     unittest.main()

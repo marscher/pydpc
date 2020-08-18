@@ -48,9 +48,9 @@ static int compare_double(const void * a, const void * b) {
 ***************************************************************************************************/
 
 extern void _get_distances(double *points, size_t npoints, size_t ndim, double *distances) {
-    size_t i, j, o;
+    size_t i, j;
     for (i = 0; i < npoints - 1; ++i) {
-        o = i * npoints;
+        size_t o = i * npoints;
         for (j = i + 1; j < npoints; ++j) {
             distances[o + j] = distance(points, i, j, ndim);
             distances[j * npoints + i] = distances[o + j];
@@ -59,11 +59,11 @@ extern void _get_distances(double *points, size_t npoints, size_t ndim, double *
 }
 
 extern double _get_kernel_size(double *distances, size_t npoints, double fraction) {
-    size_t i, j, o, m = 0, n = (npoints * (npoints - 1)) / 2;
+    size_t i, j, m = 0, n = (npoints * (npoints - 1)) / 2;
     double kernel_size;
     double *scratch = (double *) malloc(n * sizeof(double));
     for (i = 0; i < npoints - 1; ++i) {
-        o = i * npoints;
+        size_t o = i * npoints;
         for (j = i + 1; j < npoints; ++j)
             scratch[m++] = distances[o + j];
     }

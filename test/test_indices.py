@@ -48,7 +48,7 @@ class TestFourGaussians2D(unittest.TestCase):
     def test_neighbour(self):
         assert_array_less(-2, self.dpc.neighbour)
         assert_array_less(self.dpc.neighbour, self.npoints)
-        assert (self.dpc.neighbour == -1).sum() == 1
+        self.assertEqual((self.dpc.neighbour == -1).sum(), 1)
 
     def test_clusters(self):
         assert_array_less(-2, self.dpc.clusters)
