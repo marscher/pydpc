@@ -89,10 +89,10 @@ extern double _get_kernel_size(double *distances, size_t npoints, double fractio
 }
 
 extern void _get_density(double kernel_size, double *distances, size_t npoints, double *density) {
-    size_t i, j, o;
+    size_t i, j;
     double rho;
     for (i = 0; i < npoints - 1; ++i) {
-        o = i * npoints;
+        size_t o = i * npoints;
         for (j = i + 1; j < npoints; ++j) {
             rho = exp(-sqr(distances[o + j] / kernel_size));
             density[i] += rho;
